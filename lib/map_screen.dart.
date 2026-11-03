@@ -1,0 +1,136 @@
+
+import 'package:flutter/material.dart';
+import 'package:yandex_maps_mapkit/yandex_map.dart';
+
+const Color _mapBackground = Color(0xFF080A0F);
+const Color _mapAccent = Color(0xFF8B7CFF);
+
+class CockpitMapScreen extends StatefulWidget {
+  const CockpitMapScreen({super.key});
+
+  @override
+  State<CockpitMapScreen> createState() => _CockpitMapScreenState();
+}
+
+class _CockpitMapScreenState extends State<CockpitMapScreen> {
+  bool _mapCreated = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: _mapBackground,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.navigation_rounded,
+                    color: _mapAccent,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'НАВИГАЦИЯ',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 2,
+                            fontSize: 14,
+                          ),
+                        ),
+                        SizedBox(height: 3),
+                        Text(
+                          'YANDEX MAPKIT',
+                          style: TextStyle(
+                            color: Colors.white54,
+                            fontSize: 9,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _mapAccent.withOpacity(.14),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _mapCreated ? 'КАРТА АКТИВНА' : 'ЗАГРУЗКА',
+                      style: const TextStyle(
+                        color: _mapAccent,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: YandexMap(
+                        onMapCreated: (mapWindow) {
+                          if (mounted) {
+                            setState(() => _mapCreated = true);
+                          }
+                        },
+                      ),
+                    ),
+                    if (!_mapCreated)
+                      const Positioned.fill(
+                        child: IgnorePointer(
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: _mapAccent,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    color: Colors.white38,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Text(
+                      'Карта MapKit. Управление масштабом и перемещением доступно жестами.',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
