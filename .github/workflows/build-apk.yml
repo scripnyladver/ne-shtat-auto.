@@ -39,6 +39,15 @@ jobs:
           echo "Searching for Android v1 embedding references..."
           grep -RInE 'io\.flutter\.app|io\.flutter\.view|PluginRegistry\.Registrar|FlutterApplication' android native || true
 
+      - name: Check MapKit API key
+        env:
+          MAPKIT_API_KEY: ${{ secrets.MAPKIT_API_KEY }}
+        run: |
+          if [ -z "$MAPKIT_API_KEY" ]; then
+            echo "::error::MAPKIT_API_KEY GitHub Secret is missing"
+            exit 1
+          fi
+
       - name: Create debug signing keystore
         run: |
           mkdir -p "$HOME/.android"
@@ -59,7 +68,9 @@ jobs:
         run: flutter analyze --no-fatal-infos
 
       - name: Build release APK
-        run: flutter build apk --release --target-platform android-arm64
+        env:
+          MAPKIT_API_KEY: ${{ secrets.MAPKIT_API_KEY }}
+        run: flutter build apk --release --target-platform android-arm64 --dart-define=MAPKIT_API_KEY="$MAPKIT_API_KEY"
 
       - name: Verify APK signature
         run: |
@@ -69,5 +80,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ne-shtat-auto-cockpit-0.1.2-arm64
+          name: ne-shtat-auto-cockpit-0.2.0-arm64
           path: build/app/outputs/flutter-apk/app-release.apk
+          
