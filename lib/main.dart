@@ -1,9 +1,7 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' show FontFeature;
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,7 +16,6 @@ void main() => runApp(const NeShtatApp());
 
 class NeShtatApp extends StatefulWidget {
   const NeShtatApp({super.key});
-
   @override
   State<NeShtatApp> createState() => _NeShtatAppState();
 }
@@ -39,7 +36,6 @@ class _NeShtatAppState extends State<NeShtatApp> {
   Future<void> _load() async {
     final p = await SharedPreferences.getInstance();
     if (!mounted) return;
-
     setState(() {
       accent = Color(p.getInt('accent') ?? _accentDefault.value);
       animations = p.getBool('animations') ?? true;
@@ -50,8 +46,7 @@ class _NeShtatAppState extends State<NeShtatApp> {
   }
 
   Future<void> save(String key, Object value) async =>
-      (await SharedPreferences.getInstance())
-          .setString(key, value.toString());
+      (await SharedPreferences.getInstance()).setString(key, value.toString());
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -59,10 +54,7 @@ class _NeShtatAppState extends State<NeShtatApp> {
         title: 'НЕ ШТАТ Auto Cockpit',
         theme: ThemeData.dark(useMaterial3: true).copyWith(
           scaffoldBackgroundColor: _bg,
-          colorScheme: ColorScheme.dark(
-            primary: accent,
-            secondary: accent,
-          ),
+          colorScheme: ColorScheme.dark(primary: accent, secondary: accent),
         ),
         home: CockpitHome(
           accent: accent,
@@ -119,7 +111,6 @@ class CockpitHome extends StatefulWidget {
   final double glass;
   final String themeName;
   final bool showSplash;
-
   final ValueChanged<Color> onAccent;
   final ValueChanged<bool> onAnimations;
   final ValueChanged<double> onGlass;
@@ -136,7 +127,6 @@ class _CockpitHomeState extends State<CockpitHome>
     vsync: this,
     duration: const Duration(milliseconds: 2400),
   );
-
   late final AnimationController _wiggle = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 180),
@@ -145,7 +135,6 @@ class _CockpitHomeState extends State<CockpitHome>
   bool _splashDone = false;
   bool editing = false;
   int page = 0;
-
   String activeAssistant = 'Алиса';
   String track = 'Медиаплеер не подключён';
   String artist = 'Разреши доступ к медиасессиям';
@@ -156,7 +145,7 @@ class _CockpitHomeState extends State<CockpitHome>
     'weather',
     'music',
     'navigation',
-    'battery',
+    'battery'
   ];
 
   final Map<String, int> sizes = {
@@ -164,7 +153,7 @@ class _CockpitHomeState extends State<CockpitHome>
     'weather': 2,
     'music': 2,
     'navigation': 1,
-    'battery': 1,
+    'battery': 1
   };
 
   Timer? _clock;
@@ -185,10 +174,9 @@ class _CockpitHomeState extends State<CockpitHome>
     _refreshMedia();
     _loadLayout();
 
-    _clock = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) => setState(() => now = DateTime.now()),
-    );
+    _clock = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => now = DateTime.now());
+    });
   }
 
   @override
@@ -202,22 +190,16 @@ class _CockpitHomeState extends State<CockpitHome>
   Future<void> _refreshMedia() async {
     try {
       final s = await _media.invokeMapMethod<String, dynamic>('state');
-
       if (!mounted || s == null) return;
 
       setState(() {
         track = (s['title'] as String?)?.isNotEmpty == true
             ? s['title'] as String
             : 'Нет активного трека';
-
-        artist = (s['artist'] as String?) ??
-            'Открой музыкальное приложение';
-
+        artist = (s['artist'] as String?) ?? 'Открой музыкальное приложение';
         playing = s['playing'] == true;
       });
-    } on PlatformException {
-      // Медиасессия пока недоступна.
-    }
+    } on PlatformException {}
   }
 
   Future<void> _mediaAction(String action) async {
@@ -227,9 +209,7 @@ class _CockpitHomeState extends State<CockpitHome>
       await _refreshMedia();
     } catch (_) {
       if (mounted) {
-        _snack(
-          'Нет доступной медиасессии. Открой Яндекс Музыку и разреши доступ.',
-        );
+        _snack('Нет доступной медиасессии. Открой Яндекс Музыку и разреши доступ.');
       }
     }
   }
@@ -278,9 +258,7 @@ class _CockpitHomeState extends State<CockpitHome>
 
   @override
   Widget build(BuildContext context) {
-    if (!_splashDone) {
-      return _Splash(controller: _intro);
-    }
+    if (!_splashDone) return _Splash(controller: _intro);
 
     return Scaffold(
       body: SafeArea(
@@ -299,7 +277,7 @@ class _CockpitHomeState extends State<CockpitHome>
                         colors: [
                           widget.accent.withOpacity(.16),
                           _bg,
-                          _bg,
+                          _bg
                         ],
                       ),
                     ),
@@ -522,8 +500,7 @@ class _CockpitHomeState extends State<CockpitHome>
             Padding(
               padding: const EdgeInsets.only(top: 14),
               child: Text(
-                'Удерживай и перетаскивай карточки. '
-                'Нажми на карандаш, чтобы изменить размер.',
+                'Удерживай и перетаскивай карточки. Нажми на карандаш, чтобы изменить размер.',
                 style: TextStyle(
                   color: Colors.white54,
                   fontSize: 11,
@@ -564,13 +541,10 @@ class _CockpitHomeState extends State<CockpitHome>
 
     if (mounted) {
       setState(() {
-        if (saved != null && saved.isNotEmpty) {
-          widgets = saved;
-        }
+        if (saved != null && saved.isNotEmpty) widgets = saved;
 
         if (raw != null) {
           final decoded = jsonDecode(raw) as Map<String, dynamic>;
-
           for (final e in decoded.entries) {
             sizes[e.key] = (e.value as num).toInt();
           }
@@ -597,9 +571,7 @@ class _CockpitHomeState extends State<CockpitHome>
         color: _panel.withOpacity(widget.glass),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: highlight
-              ? widget.accent
-              : Colors.white.withOpacity(.07),
+          color: highlight ? widget.accent : Colors.white.withOpacity(.07),
           width: highlight ? 2 : 1,
         ),
         boxShadow: [
@@ -616,9 +588,8 @@ class _CockpitHomeState extends State<CockpitHome>
     return AnimatedBuilder(
       animation: _wiggle,
       builder: (context, _) {
-        final angle = wobble
-            ? math.sin(_wiggle.value * math.pi * 2) * .012
-            : 0.0;
+        final angle =
+            wobble ? math.sin(_wiggle.value * math.pi * 2) * .012 : 0.0;
 
         return Transform.rotate(
           angle: angle,
@@ -701,4 +672,10 @@ class _CockpitHomeState extends State<CockpitHome>
       case 'music':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-      
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.graphic_eq, size: 25),
+            const SizedBox(height: 4),
+            Text(
+              track,
+              maxLines: 1,
