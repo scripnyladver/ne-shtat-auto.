@@ -1,7 +1,8 @@
+
 name: ne_shtat_auto_cockpit
 description: NE SHTAT Auto Cockpit
 publish_to: 'none'
-version: 0.1.1+2
+version: 0.2.0+4
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -9,8 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   shared_preferences: ^2.3.2
   url_launcher: ^6.3.1
+  yandex_maps_mapkit: ^4.45.0
 
 dev_dependencies:
   flutter_test:
@@ -19,3 +22,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
