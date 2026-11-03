@@ -1,15 +1,57 @@
+
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.INTERNET" />
-    <application android:label="НЕ ШТАТ Auto Cockpit" android:name="${applicationName}" android:icon="@mipmap/ic_launcher">
-        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop" android:theme="@android:style/Theme.Material.NoActionBar" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
-            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="yandexnavi" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
+    <application
+        android:name="${applicationName}"
+        android:label="НЕ ШТАТ Auto Cockpit"
+        android:icon="@mipmap/ic_launcher">
+
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Material.NoActionBar"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
         </activity>
-        <service android:name=".CockpitNotificationListener" android:label="НЕ ШТАТ Media Access" android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" android:exported="true">
-            <intent-filter><action android:name="android.service.notification.NotificationListenerService"/></intent-filter>
+
+        <service
+            android:name=".CockpitNotificationListener"
+            android:label="НЕ ШТАТ Media Access"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+
         </service>
-        <queries>
-            <intent><action android:name="android.intent.action.VIEW"/><data android:scheme="yandexnavi"/></intent>
-            <intent><action android:name="android.intent.action.VIEW"/><data android:scheme="https"/></intent>
-        </queries>
+
     </application>
+
 </manifest>
