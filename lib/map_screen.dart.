@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:yandex_maps_mapkit/yandex_map.dart';
 
+import 'main.dart' show mapkitAvailable;
+
 const Color _mapBackground = Color(0xFF080A0F);
 const Color _mapAccent = Color(0xFF8B7CFF);
 
@@ -67,7 +69,9 @@ class _CockpitMapScreenState extends State<CockpitMapScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _mapCreated ? 'КАРТА АКТИВНА' : 'ЗАГРУЗКА',
+                      mapkitAvailable
+                          ? (_mapCreated ? 'КАРТА АКТИВНА' : 'ЗАГРУЗКА')
+                          : 'НЕТ API-КЛЮЧА',
                       style: const TextStyle(
                         color: _mapAccent,
                         fontSize: 9,
@@ -81,44 +85,78 @@ class _CockpitMapScreenState extends State<CockpitMapScreen> {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: YandexMap(
-                        onMapCreated: (mapWindow) {
-                          if (mounted) {
-                            setState(() => _mapCreated = true);
-                          }
-                        },
-                      ),
-                    ),
-                    if (!_mapCreated)
-                      const Positioned.fill(
-                        child: IgnorePointer(
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: _mapAccent,
+                child: mapkitAvailable
+                    ? Stack(
+                        children: [
+                          Positioned.fill(
+                            child: YandexMap(
+                              onMapCreated: (mapWindow) {
+                                if (mounted) {
+                                  setState(() => _mapCreated = true);
+                                }
+                              },
                             ),
                           ),
+                          if (!_mapCreated)
+                            const Positioned.fill(
+                              child: IgnorePointer(
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: _mapAccent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      )
+                    : Container(
+                        color: const Color(0xFF171C26),
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(24),
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.map_outlined,
+                              color: _mapAccent,
+                              size: 56,
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Карта пока недоступна',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Проверь MAPKIT_API_KEY в настройках GitHub Secrets и пересобери приложение.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                  ],
-                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline,
                     color: Colors.white38,
                     size: 16,
                   ),
-                  const SizedBox(width: 8),
-                  const Expanded(
+                  SizedBox(width: 8),
+                  Expanded(
                     child: Text(
-                      'Карта MapKit. Управление масштабом и перемещением доступно жестами.',
+                      'Карта MapKit. Масштабирование и перемещение доступны жестами.',
                       style: TextStyle(
                         color: Colors.white54,
                         fontSize: 10,
