@@ -198,4 +198,59 @@ class _CockpitHomeState extends State<CockpitHome> with TickerProviderStateMixin
   Widget _themePage()=>ListView(padding:const EdgeInsets.all(20),children:[const Text('THEME STUDIO',style:TextStyle(letterSpacing:2,color:Colors.white54)),const SizedBox(height:20),const Text('Готовые темы'),Wrap(spacing:8,runSpacing:8,children:[('Purple Glass',_accentDefault),('Ice Blue',const Color(0xFF63C9FF)),('Cyber Red',const Color(0xFFFF526D)),('Graphite',const Color(0xFF9AA4B2))].map((e)=>ChoiceChip(label:Text(e.$1),selected:widget.themeName==e.$1,onSelected:(_){widget.onTheme(e.$1);widget.onAccent(e.$2);})).toList()),const SizedBox(height:24),const Text('Цвет акцента'),Wrap(spacing:12,children:[_accentDefault,const Color(0xFF63C9FF),const Color(0xFFFF526D),const Color(0xFF55D6A5),const Color(0xFFFFB45B),Colors.white].map((c)=>GestureDetector(onTap:()=>widget.onAccent(c),child:Container(width:38,height:38,decoration:BoxDecoration(color:c,shape:BoxShape.circle,border:Border.all(color:Colors.white24,width:2))))).toList()),const SizedBox(height:24),Text('Прозрачность стекла ${(widget.glass*100).round()}%'),Slider(value:widget.glass,min:.25,max:.95,onChanged:widget.onGlass),const SizedBox(height:12),const Text('Фон обложки и расширенная настройка градиентов появятся в следующем этапе интеграции.')]);
 }
 
-  class _Splash extends StatelessWidget {const _Splash({required this.controller});final AnimationController controller;@override Widget build(BuildContext context)=>Scaffold(backgroundColor:Colors.black,body:Center(child:AnimatedBuilder(animation:controller,builder:(c,_){final t=Curves.easeInOutCubic.transform(controller.value);return 
+  class _Splash extends StatelessWidget {const _Splash({required this.controller});final AnimationController controller;@override Widget build(BuildContext context)=>Scaffold(backgroundColor:Colors.black,body:Center(child:AnimatedBuilder(animation:controller,builder:(c,_){final t=Curves.easeInOutCubic.transform(controller.value);
+return Opacity(
+  opacity: t,
+  child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      ShaderMask(
+        shaderCallback: (r) => LinearGradient(
+          begin: Alignment(-1 + 2 * controller.value, -1),
+          end: Alignment(1, 1),
+          colors: const [
+            Color(0xFF555B65),
+            Color(0xFFFFFFFF),
+            Color(0xFF8A929D),
+            Color(0xFFFFFFFF),
+            Color(0xFF4B515B),
+          ],
+          stops: const [0, .3, .5, .7, 1],
+        ).createShader(r),
+        child: const Text(
+          'НЕ ШТАТ',
+          style: TextStyle(
+            fontSize: 38,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 4,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+      Opacity(
+        opacity: (t * 1.4).clamp(0, 1),
+        child: const Text(
+          '(AUTO)',
+          style: TextStyle(
+            color: Color(0xFFBFC5CF),
+            fontSize: 12,
+            letterSpacing: 6,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    ],
+  ),
+);
+}),
+)));
+}
+
+class DateFormatLike {
+  static String time(DateTime d) =>
+      '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+
+  static String date(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+}
