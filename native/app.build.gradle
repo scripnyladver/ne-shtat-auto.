@@ -20,10 +20,10 @@ android {
 
     defaultConfig {
         applicationId 'com.neshtat.autocockpit'
-        minSdk 24
+        minSdk 26
         targetSdk 35
-        versionCode 3
-        versionName '0.1.2'
+        versionCode 4
+        versionName '0.2.0'
     }
 
     buildTypes {
@@ -31,6 +31,10 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+}
+
+dependencies {
+    implementation "com.google.android.gms:play-services-location:21.1.0"
 }
 
 flutter {
