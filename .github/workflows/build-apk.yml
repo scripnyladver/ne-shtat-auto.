@@ -39,6 +39,19 @@ jobs:
           echo "Searching for Android v1 embedding references..."
           grep -RInE 'io\.flutter\.app|io\.flutter\.view|PluginRegistry\.Registrar|FlutterApplication' android native || true
 
+      - name: Create debug signing keystore
+        run: |
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -v \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US"
+
       - name: Get Flutter dependencies
         run: flutter pub get
 
@@ -48,8 +61,13 @@ jobs:
       - name: Build release APK
         run: flutter build apk --release --target-platform android-arm64
 
+      - name: Verify APK signature
+        run: |
+          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n 1)
+          "$APKSIGNER" verify --verbose --print-certs build/app/outputs/flutter-apk/app-release.apk
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ne-shtat-auto-cockpit-0.1.1-arm64
+          name: ne-shtat-auto-cockpit-0.1.2-arm64
           path: build/app/outputs/flutter-apk/app-release.apk
