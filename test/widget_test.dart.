@@ -1,0 +1,20 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ne_shtat_auto_cockpit/main.dart';
+
+void main() {
+  group('DateFormatLike', () {
+    test('formats time correctly', () {
+      expect(
+        DateFormatLike.time(DateTime(2026, 1, 2, 3, 4)),
+        '03:04',
+      );
+    });
+
+    test('formats date correctly', () {
+      expect(
+        DateFormatLike.date(DateTime(2026, 1, 2)),
+        '02.01.2026',
+      );
+    });
+  });
+}
