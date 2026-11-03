@@ -5,6 +5,7 @@ import 'package:yandex_maps_mapkit/yandex_map.dart';
 import 'main.dart' show mapkitAvailable;
 
 const Color _mapBackground = Color(0xFF080A0F);
+const Color _mapPanel = Color(0xFF171C26);
 const Color _mapAccent = Color(0xFF8B7CFF);
 
 class CockpitMapScreen extends StatefulWidget {
@@ -16,156 +17,213 @@ class CockpitMapScreen extends StatefulWidget {
 
 class _CockpitMapScreenState extends State<CockpitMapScreen> {
   bool _mapCreated = false;
+  bool _mapError = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _mapBackground,
-      body: SafeArea(
+    return Container(
+      color: _mapBackground,
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.explore_outlined, color: _mapAccent, size: 21),
+              SizedBox(width: 9),
+              Text(
+                'КАРТА',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 2,
+                ),
+              ),
+              Spacer(),
+              _StatusLabel(),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: DecoratedBox(
+                decoration: const BoxDecoration(color: _mapPanel),
+                child: _buildMapContent(),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.white38, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  mapkitAvailable
+                      ? 'Карта Яндекса. Для маршрута и ведения открой Навигатор.'
+                      : 'Карта недоступна. Проверь API-ключ MapKit и подключение к интернету.',
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 11,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMapContent() {
+    if (!mapkitAvailable || _mapError) {
+      return _MapPlaceholder(
+        error: _mapError,
+        onRetry: () {
+          setState(() {
+            _mapError = false;
+            _mapCreated = false;
+          });
+        },
+      );
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        YandexMap(
+          onMapCreated: (mapWindow) {
+            if (mounted) {
+              setState(() => _mapCreated = true);
+            }
+          },
+        ),
+        if (!_mapCreated)
+          const ColoredBox(
+            color: _mapPanel,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: _mapAccent),
+                  SizedBox(height: 14),
+                  Text(
+                    'ЗАГРУЗКА КАРТЫ',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10,
+                      letterSpacing: 1.8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _StatusLabel extends StatelessWidget {
+  const _StatusLabel();
+
+  @override
+  Widget build(BuildContext context) {
+    final available = mapkitAvailable;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: (available ? const Color(0xFF39C98A) : Colors.orange)
+            .withOpacity(.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: (available ? const Color(0xFF39C98A) : Colors.orange)
+              .withOpacity(.35),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: available ? const Color(0xFF39C98A) : Colors.orange,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            available ? 'MAPKIT ON' : 'MAPKIT OFF',
+            style: TextStyle(
+              color: available ? const Color(0xFF75E5B5) : Colors.orange,
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MapPlaceholder extends StatelessWidget {
+  const _MapPlaceholder({
+    required this.error,
+    required this.onRetry,
+  });
+
+  final bool error;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.navigation_rounded,
-                    color: _mapAccent,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'НАВИГАЦИЯ',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 2,
-                            fontSize: 14,
-                          ),
-                        ),
-                        SizedBox(height: 3),
-                        Text(
-                          'YANDEX MAPKIT',
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 9,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _mapAccent.withOpacity(.14),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      mapkitAvailable
-                          ? (_mapCreated ? 'КАРТА АКТИВНА' : 'ЗАГРУЗКА')
-                          : 'НЕТ API-КЛЮЧА',
-                      style: const TextStyle(
-                        color: _mapAccent,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+            const Icon(Icons.map_outlined, color: _mapAccent, size: 54),
+            const SizedBox(height: 16),
+            Text(
+              error ? 'НЕ УДАЛОСЬ ОТКРЫТЬ КАРТУ' : 'MAPKIT НЕ АКТИВИРОВАН',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+                letterSpacing: 1.1,
               ),
             ),
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: mapkitAvailable
-                    ? Stack(
-                        children: [
-                          Positioned.fill(
-                            child: YandexMap(
-                              onMapCreated: (mapWindow) {
-                                if (mounted) {
-                                  setState(() => _mapCreated = true);
-                                }
-                              },
-                            ),
-                          ),
-                          if (!_mapCreated)
-                            const Positioned.fill(
-                              child: IgnorePointer(
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: _mapAccent,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      )
-                    : Container(
-                        color: const Color(0xFF171C26),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(24),
-                        child: const Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.map_outlined,
-                              color: _mapAccent,
-                              size: 56,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Карта пока недоступна',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Проверь MAPKIT_API_KEY в настройках GitHub Secrets и пересобери приложение.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white54,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+            const SizedBox(height: 9),
+            Text(
+              error
+                  ? 'Проверь интернет-соединение и API-ключ. Затем попробуй снова.'
+                  : 'Добавь MAPKIT_API_KEY в GitHub Secrets и собери приложение с этим секретом.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 11,
+                height: 1.5,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 10, 16, 12),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.white38,
-                    size: 16,
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Карта MapKit. Масштабирование и перемещение доступны жестами.',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ),
-                ],
+            if (error) ...[
+              const SizedBox(height: 18),
+              OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh, size: 17),
+                label: const Text('Повторить'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _mapAccent,
+                  side: const BorderSide(color: _mapAccent),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
