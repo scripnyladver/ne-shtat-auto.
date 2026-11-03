@@ -1,14 +1,26 @@
 
 import 'package:flutter/material.dart';
 import 'package:yandex_maps_mapkit/yandex_map.dart';
+import 'package:yandex_maps_mapkit/mapkit.dart' show MapWindow;
 
-class CockpitMapScreen extends StatelessWidget {
+class CockpitMapScreen extends StatefulWidget {
   const CockpitMapScreen({
     super.key,
     required this.mapkitAvailable,
   });
 
   final bool mapkitAvailable;
+
+  @override
+  State<CockpitMapScreen> createState() => _CockpitMapScreenState();
+}
+
+class _CockpitMapScreenState extends State<CockpitMapScreen> {
+  MapWindow? _mapWindow;
+
+  void _onMapCreated(MapWindow mapWindow) {
+    _mapWindow = mapWindow;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +76,10 @@ class CockpitMapScreen extends StatelessWidget {
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(18),
-                child: mapkitAvailable
-                    ? const YandexMap()
+                child: widget.mapkitAvailable
+                    ? YandexMap(
+                        onMapCreated: _onMapCreated,
+                      )
                     : const _MapUnavailable(),
               ),
             ),
