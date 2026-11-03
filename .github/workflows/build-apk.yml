@@ -1,4 +1,6 @@
+
 name: Build NE SHTAT Auto Cockpit APK
+
 on:
   workflow_dispatch:
   push:
@@ -7,14 +9,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
+
       - name: Generate missing Android wrapper files
         run: flutter create --platforms=android --org ru.neshtat --project-name ne_shtat_auto_cockpit .
+
+      - name: Remove generated default test
+        run: rm -f test/widget_test.dart
+
       - name: Restore app native integration
         run: |
           mkdir -p android/app/src/main/kotlin/com/neshtat/autocockpit
@@ -22,9 +31,13 @@ jobs:
           cp native/CockpitNotificationListener.kt android/app/src/main/kotlin/com/neshtat/autocockpit/CockpitNotificationListener.kt
           cp native/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
           cp native/app.build.gradle android/app/build.gradle
+
       - run: flutter pub get
+
       - run: flutter analyze
+
       - run: flutter build apk --release --target-platform android-arm64
+
       - uses: actions/upload-artifact@v4
         with:
           name: ne-shtat-auto-cockpit-0.1.1-arm64
