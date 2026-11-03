@@ -11,14 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
 
-      - name: Generate missing Android wrapper files
+      - name: Generate Android project
         run: flutter create --platforms=android --org ru.neshtat --project-name ne_shtat_auto_cockpit .
 
       - name: Remove generated default test
@@ -32,14 +34,22 @@ jobs:
           cp native/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
           cp native/app.build.gradle android/app/build.gradle
 
-      - run: flutter pub get
+      - name: Check for obsolete Android embedding
+        run: |
+          echo "Searching for Android v1 embedding references..."
+          grep -RInE 'io\.flutter\.app|io\.flutter\.view|PluginRegistry\.Registrar|FlutterApplication' android native || true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
 
       - name: Analyze Dart code
         run: flutter analyze --no-fatal-infos
 
-      - run: flutter build apk --release --target-platform android-arm64
+      - name: Build release APK
+        run: flutter build apk --release --target-platform android-arm64
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: ne-shtat-auto-cockpit-0.1.1-arm64
           path: build/app/outputs/flutter-apk/app-release.apk
