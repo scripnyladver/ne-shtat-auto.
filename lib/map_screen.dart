@@ -16,11 +16,7 @@ class CockpitMapScreen extends StatefulWidget {
 }
 
 class _CockpitMapScreenState extends State<CockpitMapScreen> {
-  MapWindow? _mapWindow;
-
-  void _onMapCreated(MapWindow mapWindow) {
-    _mapWindow = mapWindow;
-  }
+  void _onMapCreated(MapWindow _) {}
 
   @override
   Widget build(BuildContext context) {
